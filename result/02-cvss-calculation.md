@@ -30,29 +30,29 @@ Base Score = Roundup ( min ( 5.87 + 3.89 , 10 ) ) = 9.8
 
 ---
 
-### 2. Vulnerable JS Library (`ua-parser-js`) — RCE/Prototype Pollution (VUL-011)
-**Skenario:** Aplikasi memuat library `ua-parser-js` versi usang yang memiliki CVE publik terkait eksploitasi regular expression denial of service (ReDoS) atau prototype pollution, yang bisa berujung pada client-side compromise.
+### 2. Vulnerable JS Library (`ua-parser-js`) — Regular Expression Denial of Service (ReDoS) (VUL-011)
+**Skenario:** Attacker publik dapat mengirimkan HTTP request dengan header User-Agent yang crafted ke aplikasi (OJS). Library ua-parser-js v0.7.7 akan memproses input tersebut menggunakan regex yang rentan, menyebabkan CPU spike dan aplikasi menjadi tidak responsif (Denial of Service)
 
-**Vector:** `CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H`
-- **AV:N (Network)**: Akses via jaringan internet.
-- **AC:L (Low)**: Mudah dieksploitasi dengan payload publik yang tersedia.
-- **PR:N (None)**: Tidak butuh hak akses khusus, dimuat di semua halaman anonim.
-- **UI:N (None)**: Dapat berjalan otomatis saat script di-*load*.
-- **S:C (Changed)**: Eksploitasi mengubah konteks eksekusi pada *environment* pengguna (browser korban).
-- **C:H (High)**: Akses penuh ke session dan data klien.
-- **I:H (High)**: Bisa mengubah alur aplikasi DOM/JS secara penuh.
-- **A:H (High)**: Merusak fungsionalitas klien (contoh ReDoS membuat browser unresponsive).
+**Vector:** `CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H`
+- **AV:N (Network)**: Serangan dilakukan melalui HTTP request (jarak jauh).
+- **AC:L (Low)**: Tidak butuh kondisi khusus, cukup kirim payload regex tertentu.
+- **PR:N (None)**: Tidak perlu login (User-Agent selalu diproses server).
+- **UI:N (None)**: Tidak butuh interaksi user.
+- **S:U (Unchanged)**: Dampak hanya pada komponen yang sama (server aplikasi).
+- **C:N (None)**: Tidak ada kebocoran data.
+- **I:N (None)**: Tidak ada perubahan data.
+- **A:H (High)**: Server bisa hang / CPU 100% → layanan down.
 
 **Base Score:** **10.0 (CRITICAL)**
 
 **Kalkulasi:**
 ISC_base = 1 - ( 1 - 0.56 ) x ( 1 - 0.56 ) x ( 1 - 0.56 ) = 0.915
 
-ISS = 7.52 x [ 0.915 - 0.029 ] = 6.66 ( Scope Changed ⇒ x 1.08 )
+ISS = 6.42 x 0.56 = 3.59
 
 Exploitability = 8.22 x 0.85 x 0.77 x 0.85 x 0.85 = 3.89
 
-Base Score = Roundup ( min ( 1.08 x ( 6.66 + 3.89 ) , 10 ) ) = 10.0
+Base Score = Roundup ( 3.59 + 3.89 ) = 7.5
 
 ---
 

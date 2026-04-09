@@ -11,7 +11,7 @@ Risk Score = Likelihood × Impact
 | ID | Kerentanan | OWASP | CVSS Score | Rating | Likelihood | Business Impact | Risk | Prioritas |
 |---|---|---|---|---|---|---|---|---|
 | VUL-002 | SQL Injection (Time-based parameter login) | A03 | 9.8 | Critical | 4 (High) | 5 (Kritis — kebocoran data) | **Critical** | 1 |
-| VUL-011 | RCE / Prot. Pollution pd Library ua-parser-js | A06 | 10.0 | Critical | 3 (Medium) | 5 (Kritis — RCE remote) | **Critical** | 2 |
+| VUL-011 | ReDoS pd Library ua-parser-js | A06 | 10.0 | Critical | 4 (High) | 3 (Medium) — Denial of Service) | **High** | 2 |
 | VUL-003 | Insecure File Upload & no verify | A08 | 8.8 | High | 4 (High) | 4 (Tinggi — backdooring) | **High** | 3 |
 | VUL-008 | OJS Version out of date (3.3.0-8, PHP 7.4) | A06 | 7.5 | High | 5 (Very High) | 3 (Sedang — kompromi VM) | **High** | 4 |
 | VUL-020 | Open Redirect parameter source /login | A01 | 6.1 | Medium | 4 (High) | 3 (Sedang — reputasi user) | **Medium** | 5 |

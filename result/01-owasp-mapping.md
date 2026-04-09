@@ -12,7 +12,7 @@
 | VUL-008 | PHP 7.4.33 End-of-Life (tidak menerima patch keamanan) | Nikto | **A06 — Vulnerable & Outdated Components** | CWE-1104 | - |
 | VUL-009 | OJS 3.3.0-8 versi outdated terekspos via fingerprinting | Nikto | **A06 — Vulnerable & Outdated Components** | CWE-200 | CVE-2021-27188 (SSRF) |
 | VUL-010 | Content Security Policy (CSP) Header Not Set | ZAP | **A05 — Security Misconfiguration** | CWE-693 | - |
-| VUL-011 | Vulnerable JS Library (`ua-parser-js`) dengan CVE RCE | ZAP | **A06 — Vulnerable & Outdated Components** | CWE-1035 | CVE-2021-27292 |
+| VUL-011 | Vulnerable JS Library (`ua-parser-js`) dengan CVE ReDoS | ZAP | **A06 — Vulnerable & Outdated Components** | CWE-1395 | CVE-2020-7793 CVE-2020-7733 |
 | VUL-012 | Cookie tanpa atribut `SameSite` (CSRF risk) | ZAP | **A05 — Security Misconfiguration** | CWE-352 | - |
 | VUL-013 | `/install` endpoint masih tersedia (potensi reinstall) | Gobuster | **A05 — Security Misconfiguration** | CWE-16 | - |
 | VUL-014 | Directory Browsing aktif pada `/cache/` | ZAP / Nikto | **A05 — Security Misconfiguration** | CWE-548 | - |

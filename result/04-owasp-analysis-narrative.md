@@ -25,7 +25,7 @@ Ini menandakan fase *deployment/hosting* OJS ini dilakukan dengan *default-stack
 **Temuan**: OS Outdated, OJS Version Exposed, Library JS (`ua-parser-js`) usang terekspos serta PHP (7.4) yg sudah tidak lagi disupport resmi keamanan.
 
 **Narasi dan Dampak Logis**:
-Pengelolaan Server *(Patch Management)* absen atau gagal terlaksana. Menjalankan PHP versi usang sangat berisiko manakala ada "0-day discovery". Penyerang tak perlu pusing membedah OJS-nya sendiri jika celah RCE sudah ada pada dependensi Library eksternalnya (contoh modul JS NPM-nya atau versi PHP itu sendiri). Dampak utama adalah infrastruktur secara kolektif (satu VM bisa disusupi).
+Pengelolaan patch pada server belum optimal sehingga beberapa komponen masih menggunakan versi usang, seperti PHP 7.4 yang sudah tidak mendapat dukungan keamanan, serta library ua-parser-js yang rentan terhadap serangan ReDoS. Kerentanan ini memungkinkan penyerang menyebabkan gangguan layanan (denial of service), meskipun tidak langsung berdampak pada kebocoran data atau pengambilalihan sistem. Selain itu, tereksposnya versi OJS dapat mempermudah proses reconnaissance untuk mencari celah yang relevan. Secara keseluruhan, kondisi ini meningkatkan attack surface dan berpotensi memperbesar risiko jika dikombinasikan dengan kerentanan lain.
 
 ### 5. A07 — Identification & Authentication Failures
 **Temuan**: Penyimpanan Hardcoded Credentials pada source-code yang rawan terbaca oleh attacker.
