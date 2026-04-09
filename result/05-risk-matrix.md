@@ -1,4 +1,4 @@
-# Risk Matrix Karakteristik Evaluasi
+# Risk Matrix Karakteristik Evaluasi (need for convert to jpg file)
 
 Matriks resiko ini menyoroti titik temu relasi antar tingkat "Likelihood (Probabilitas Terjadinya)" yang memaparkan 1 sampai 5 ke kanan, vs "Business Impact" keparahan institusi yang memanjang ke atas (1 sampai 5).
 
