@@ -1,42 +1,36 @@
-### 5.1 Formula Risk (OWASP Risk Rating Methodology)
+# Risk Register - OJS 3.3.0-8
 
-```
-Likelihood = (Threat Agent Factors + Vulnerability Factors) / 2
-Impact     = (Technical Impact + Business Impact) / 2
-Risk Score = Likelihood × Impact
-```
+Formula acuan:
+- Likelihood = (kemudahan eksploitasi + ketersediaan attack path)
+- Impact = (dampak teknis + dampak bisnis)
+- Risk Level diturunkan dari kombinasi CVSS, likelihood, dan impact.
 
-### 5.2 Risk Register OJS — Template Terisi
+Skala:
+- Likelihood: 1 (Very Low) sampai 5 (Very High)
+- Impact: 1 (Very Low) sampai 5 (Very High)
 
-| ID | Kerentanan | OWASP | CVSS Score | Rating | Likelihood | Business Impact | Risk | Prioritas |
-|---|---|---|---|---|---|---|---|---|
-| VUL-002 | SQL Injection (Time-based parameter login) | A03 | 9.8 | Critical | 4 (High) | 5 (Kritis — kebocoran data) | **Critical** | 1 |
-| VUL-011 | RCE / Prot. Pollution pd Library ua-parser-js | A06 | 10.0 | Critical | 3 (Medium) | 5 (Kritis — RCE remote) | **Critical** | 2 |
-| VUL-003 | Insecure File Upload & no verify | A08 | 8.8 | High | 4 (High) | 4 (Tinggi — backdooring) | **High** | 3 |
-| VUL-008 | OJS Version out of date (3.3.0-8, PHP 7.4) | A06 | 7.5 | High | 5 (Very High) | 3 (Sedang — kompromi VM) | **High** | 4 |
-| VUL-020 | Open Redirect parameter source /login | A01 | 6.1 | Medium | 4 (High) | 3 (Sedang — reputasi user) | **Medium** | 5 |
-| VUL-006 | Hardcoded Credentials di config.inc.php | A07 | 9.1 | Critical | 2 (Low) | 5 (Kritis — database leak) | **High** | 6 |
-| VUL-005 | Exposed Endpoint /server-status & Debug info | A05 | 5.3 | Medium | 5 (Very High) | 2 (Rendah — hanya info) | **Medium** | 7 |
-| VUL-001 | Unsafe Use of eval() backend (PHP) | A03 | 7.3 | High | 2 (Low) | 4 (Tinggi — local RCE) | **Medium** | 8 |
-| VUL-004 | Tidak ada flag X-Frame-Options | A05 | 4.3 | Medium | 4 (High) | 2 (Rendah — UI clickjack) | **Medium** | 9 |
-| VUL-007 | Cookie tanpa HTTPOnly | A05 | 4.3 | Medium | 4 (High) | 2 (Rendah — Pencurian Sesi) | **Medium** | 10 |
+| ID | Kerentanan | OWASP | Sumber | CVSS | Likelihood | Impact | Risk | Prioritas | Status |
+|---|---|---|---|---:|---:|---:|---|---:|---|
+| VUL-004 | Vulnerable JS Library (ua-parser-js) | A06 | ZAP | 9.8 | 4 | 5 | Critical | 1 | Valid |
+| VUL-012 | Endpoint `/install` masih tersedia | A05 | Gobuster | 9.8* | 4 | 5 | Critical | 2 | Valid (perlu verifikasi bypass) |
+| VUL-001 | Command Injection via backticks (InstallTool) | A03 | Semgrep | 7.8 | 3 | 5 | High | 3 | Valid/Potensial |
+| VUL-009 | HTTP tanpa HTTPS | A02 | ZAP | 6.5 | 4 | 4 | High | 4 | Valid |
+| VUL-006 | Directory Browsing pada `/cache/` | A05 | Nikto/ZAP | 5.3 | 4 | 3 | Medium | 5 | Valid |
+| VUL-007 | Cookie tanpa HttpOnly | A05 | Nikto/ZAP | 5.4** | 3 | 3 | Medium | 6 | Valid |
+| VUL-010 | Header anti-clickjacking tidak ada | A05 | Nikto/ZAP | 4.3 | 3 | 2 | Medium | 7 | Valid |
+| VUL-005 | CSP header tidak diset | A05 | ZAP | 5.4** | 3 | 3 | Medium | 8 | Valid |
+| VUL-011 | SRI attribute missing | A08 | ZAP | 4.8** | 2 | 3 | Medium | 9 | Valid |
+| VUL-002 | Insecure Deserialization (`unserialize`) | A08 | Semgrep | 6.2** | 2 | 4 | Medium | 10 | Potensial |
+| VUL-003 | Unsafe File Deletion (`unlink`) | A05 | Semgrep | 5.5** | 2 | 3 | Medium | 11 | Potensial |
+| VUL-008 | Cookie tanpa SameSite | A05 | ZAP | 3.1** | 3 | 2 | Low | 12 | Valid |
 
-### 5.3 Likelihood Scale
+Keterangan:
+- Nilai dengan tanda * adalah worst-case estimate untuk prioritisasi awal.
+- Nilai dengan tanda ** adalah skor estimasi operasional internal (bukan dari NVD CVE langsung), dipakai untuk ranking remediation.
 
-| Skor | Level | Deskripsi |
+## Observasi Penting (Negative Findings)
+
+| Item | Hasil Uji | Dampak ke Prioritas |
 |---|---|---|
-| 1 | Very Low | Sulit dieksploitasi, butuh skill tinggi |
-| 2 | Low | Membutuhkan kondisi tertentu |
-| 3 | Medium | Aktor dengan kemampuan rata-rata bisa mengeksploitasi |
-| 4 | High | Mudah dieksploitasi, banyak tools otomatis |
-| 5 | Very High | Otomatis dan sangat mudah |
-
-### 5.4 Business Impact Scale
-
-| Skor | Level | Dampak |
-|---|---|---|
-| 1 | Minimal | Tidak ada dampak signifikan |
-| 2 | Low | Gangguan minor, tidak ada data leak |
-| 3 | Medium | Gangguan signifikan, reputasi terdampak |
-| 4 | High | Kebocoran data pengguna, denda regulasi |
-| 5 | Critical | Kompromi sistem penuh, RCE, data breach masif |
+| SQL Injection | Tidak ditemukan oleh SQLMap pada parameter yang diuji | Menurunkan urgensi A03 dari sisi SQLi saat ini |
+| SSRF CVE-2021-27188 | Tidak terbukti exploitable (authorization barrier/noContext) | Dipantau, namun bukan prioritas patch paling atas saat ini |

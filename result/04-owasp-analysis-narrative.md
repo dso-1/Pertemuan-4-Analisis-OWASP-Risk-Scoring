@@ -1,40 +1,61 @@
-# Analisis OWASP Berdasarkan Kategori Ditemukan
+# Narasi Analisis OWASP (Berdasarkan Hasil Scan Aktual)
 
-Analisis kualitatif detail mengenai eksploitasi kerentanan spesifik yang direkam menggunakan tool Automated/Manual, yang mempresentasikan risiko-risiko sesuai referensi top 10 OWASP Top 10 (2021).
+## A02 - Cryptographic Failures
+Temuan utama pada kategori ini adalah aplikasi masih berjalan pada HTTP tanpa HTTPS. Kondisi ini meningkatkan risiko penyadapan kredensial, cookie sesi, dan data sensitif saat trafik melewati jaringan yang tidak tepercaya. Dalam konteks layanan jurnal yang melibatkan akun editor, reviewer, dan penulis, absennya TLS dapat berdampak langsung pada kerahasiaan akun dan integritas proses editorial.
 
-### 1. A01 — Broken Access Control
-**Temuan**: Open Redirect pada parameter `source` di endpoint login.
+Rekomendasi cepat:
+- Wajibkan HTTPS penuh (redirect 301 HTTP ke HTTPS).
+- Aktifkan HSTS setelah TLS stabil.
 
-**Narasi dan Dampak Logis**:
-Validasi endpoint masukan seperti `source` yang lengah dapat menipu pengguna. Pengguna cenderung mempercayai sebuah URL jika URL dasar berasal dari domain aplikasi yang legal (dalam konteks ini OJS). Begitu login berhasil, OJS akan mengarahkan (redirect) token/sesi ke URL berbahaya yang telah direncanakan penyerang, hal ini bisa mengakibatkan kerugian dari segi Social Engineering / Pishing.
+## A03 - Injection
+Semgrep mendeteksi penggunaan backticks command pada komponen instalasi. Pola ini berisiko tinggi karena command shell dieksekusi langsung di level sistem operasi. Walau bukti eksploitasi remote dari input pengguna belum ditunjukkan pada data saat ini, praktik ini tetap berbahaya dan perlu refactor.
 
-### 2. A03 — Injection
-**Temuan**: SQL Injection (Login), Parameter Exec Evaluasi/Injection di PHP (`eval()`).
+Di sisi lain, pengujian SQLMap tidak menemukan SQL Injection pada endpoint yang diuji. Artinya, untuk saat ini risiko injection lebih dominan dari aspek command execution pattern di source code dibanding SQLi terkonfirmasi.
 
-**Narasi dan Dampak Logis**:
-Injeksi mendominasi skala kritikal akibat kurangnya filter *input* ketat yang diterima dari sumber yang tak divalidasi. *SQL Injection* di form login berpotensi mencuri data kredensial Administrator/Editor, lalu menargetkan kerahasiaan publikasi jurnal atau komite reviewer.
+Rekomendasi cepat:
+- Hindari backticks untuk eksekusi shell.
+- Gunakan API sistem yang aman dan whitelist command ketat bila benar-benar dibutuhkan.
 
-### 3. A05 — Security Misconfiguration
-**Temuan**: Missing HTTP Response Headers, Directory `/cache/` Browsing aktif, Exposed `/server-status` IP Private.
+## A05 - Security Misconfiguration
+Kategori ini adalah yang paling dominan. Bukti yang ditemukan meliputi:
+- Directory browsing/indexing aktif pada `/cache/`.
+- Header keamanan belum lengkap (CSP, X-Frame-Options, X-Content-Type-Options).
+- Cookie hardening belum optimal (HttpOnly/SameSite).
+- Endpoint sensitif `/install` masih terdeteksi.
 
-**Narasi dan Dampak Logis**:
-Secara kuantitas, ini yang paling banyak ditemukan (Mulai dari hilangnya Header CSP hingga directory indexing aktif). 
-Ini menandakan fase *deployment/hosting* OJS ini dilakukan dengan *default-stack*, dengan Apache yang belum dikonfigurasi hardening. Meskipun risikonya cenderung Medium-Low, penyerang pada fase Recon (Discovery) bisa leluasa memetakan file mana saja yang rentan. Tereksposnya file statis atau cookie API tanpa pengamanan membuat layer proteksi lain bisa diterobos dengan mudah (contoh: mencuri token OTP di log atau file `.json` *cache*).
+Kombinasi kelemahan konfigurasi ini memperbesar attack surface dan mempermudah fase reconnaissance penyerang sebelum eksploitasi lanjutan.
 
-### 4. A06 — Vulnerable and Outdated Components
-**Temuan**: OS Outdated, OJS Version Exposed, Library JS (`ua-parser-js`) usang terekspos serta PHP (7.4) yg sudah tidak lagi disupport resmi keamanan.
+Rekomendasi cepat:
+- Matikan directory listing.
+- Lengkapi security headers di level web server/reverse proxy.
+- Hardening cookie: HttpOnly, Secure, SameSite.
+- Batasi atau nonaktifkan endpoint instalasi setelah deployment selesai.
 
-**Narasi dan Dampak Logis**:
-Pengelolaan Server *(Patch Management)* absen atau gagal terlaksana. Menjalankan PHP versi usang sangat berisiko manakala ada "0-day discovery". Penyerang tak perlu pusing membedah OJS-nya sendiri jika celah RCE sudah ada pada dependensi Library eksternalnya (contoh modul JS NPM-nya atau versi PHP itu sendiri). Dampak utama adalah infrastruktur secara kolektif (satu VM bisa disusupi).
+## A06 - Vulnerable and Outdated Components
+ZAP melaporkan library JavaScript rentan (ua-parser-js) dengan severity tinggi. Komponen pihak ketiga yang rentan berpotensi menjadi jalur kompromi walaupun aplikasi inti tidak memiliki bug eksploitasi langsung pada endpoint tertentu.
 
-### 5. A07 — Identification & Authentication Failures
-**Temuan**: Penyimpanan Hardcoded Credentials pada source-code yang rawan terbaca oleh attacker.
+Rekomendasi cepat:
+- Inventaris versi dependensi.
+- Patch/upgrade komponen rentan.
+- Terapkan proses dependency monitoring rutin.
 
-**Narasi dan Dampak Logis**:
-Sebuah sistem terautentikasi runtuh segera setelah "kunci rumah" tertulis di "karpet teras". Credential Hardcoding DB akan memberikan penyerang root akses mutlak di ekosistem MariaDB/MySQL jika penyerang memanfaatkan LFI / Path Traversal atau SSRF. Tanpa autentikasi ganda atau rotasi *password*, eksploitasinya bisa sulit dideteksi sejak awal.
+## A08 - Software and Data Integrity Failures
+Semgrep menemukan pola insecure deserialization (`unserialize`) dan ZAP melaporkan tidak adanya Subresource Integrity (SRI). Pada kasus `unserialize`, data saat ini menunjukkan kemungkinan false positive pada aliran data internal, namun tetap perlu validasi lanjutan karena pola ini secara prinsip rawan object injection jika sumber data dapat dimanipulasi.
 
-### 6. A08 — Software and Data Integrity Failures
-**Temuan**: Insecure File Upload pada FileManager OJS, tak memadainya validasi integrasi metadata unggahan. Subresource Integrity belum terpasang. 
+Rekomendasi cepat:
+- Audit alur data pada seluruh pemanggilan `unserialize`.
+- Hindari deserialisasi object dari sumber yang tidak dipercaya.
+- Tambahkan SRI untuk aset eksternal/static dependencies.
 
-**Narasi dan Dampak Logis**:
-Aplikasi OJS merupakan jurnal berbasis submitter file (mahasiswa, eksternal reviewer) sehingga fitur utama *FileUpload Document/PDF* sangat tinggi trafficnya. Kegagalan melakukan Validasi Integritas tipe file PDF vs PHP akan menghancurkan data sistem jika Author "nakal" memutuskan mengupload File PHP Web-backdoor dan menjalankannya melalui path `/files/` jurnal tersebut.
+## A10 - SSRF
+Pengujian SSRF untuk skenario CVE-2021-27188 tidak berhasil dieksploitasi pada lingkungan ini karena ada hambatan otorisasi dan tidak ada journal context aktif. Artinya, risiko SSRF belum tervalidasi sebagai celah aktif saat ini.
+
+Rekomendasi cepat:
+- Tetap lakukan hardening endpoint manajemen.
+- Uji ulang jika konfigurasi journal context/admin berubah.
+
+## Kesimpulan Prioritas
+Prioritas remediation paling awal:
+1. Patch komponen rentan (A06) dan amankan endpoint `/install`.
+2. Terapkan HTTPS dan hardening konfigurasi server (A02, A05).
+3. Refactor pola command execution dan audit deserialization (A03, A08).

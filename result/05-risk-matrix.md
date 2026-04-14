@@ -1,31 +1,36 @@
-# Risk Matrix Karakteristik Evaluasi
+# Risk Matrix 5x5 - OJS 3.3.0-8
 
-Matriks resiko ini menyoroti titik temu relasi antar tingkat "Likelihood (Probabilitas Terjadinya)" yang memaparkan 1 sampai 5 ke kanan, vs "Business Impact" keparahan institusi yang memanjang ke atas (1 sampai 5).
+Matriks berikut disusun dari kombinasi Likelihood dan Impact pada risk register.
 
-> Acuan visual text-matrix ini mengimitasikan hasil grafik 5x5 heatmap dari pemetaan Risk Register file `03-risk-register.md`.
+## Matriks
 
 ```text
-         |  VERY    |         |         |         |  VERY   |
-BUSN     |  LOW     |   LOW   | MEDIUM  |  HIGH   |  HIGH   |
-IMPACT   |   (1)    |   (2)   |   (3)   |   (4)   |   (5)   |
----------+----------+---------+---------+---------+---------|
-VERY HIGH|          |         |         | VU-02   |         |
-   (5)   |          | VU-06   | VU-11   |         |         |
----------+----------+---------+---------+---------+---------|
-HIGH     |          |         |         | VU-03   |         |
-   (4)   |          | VU-01   |         |         |         |
----------+----------+---------+---------+---------+---------|
-MEDIUM   |          |         |         | VU-20   | VU-08   |
-   (3)   |          |         |         |         |         |
----------+----------+---------+---------+---------+---------|
-LOW      |          |         |         | VU-04   | VU-05   |
-   (2)   |          |         |         | VU-07   |         |
----------+----------+---------+---------+---------+---------|
-VERY LOW |          |         |         |         |         |
-   (1)   |          |         |         |         |         |
----------+----------+---------+---------+---------+---------|
-         LIKELIHOOD (Kiri-Kanan) (1=VeryLow -> 5=VeryHigh)
+Impact \ Likelihood |   1    |   2    |   3    |   4    |   5
+--------------------+--------+--------+--------+--------+-------
+5 (Very High)       |        |        | VUL-001| VUL-004| 
+                    |        |        |        | VUL-012| 
+4 (High)            |        | VUL-002|        | VUL-009| 
+3 (Medium)          |        | VUL-003| VUL-007| VUL-006| 
+                    |        | VUL-011| VUL-005|        | 
+2 (Low)             |        |        | VUL-008| VUL-010| 
+1 (Very Low)        |        |        |        |        | 
 ```
 
-### Panduan Legenda Evaluasi
-- Warna:  🔴 Critical  🟠 High  🟡 Medium  🟢 Low  ⚪ Info
+## Legend
+- Critical: butuh tindakan segera.
+- High: perbaikan prioritas sprint terdekat.
+- Medium: perbaikan terjadwal dengan kontrol kompensasi.
+- Low: monitor dan hardening bertahap.
+
+## Pemetaan Ringkas Level Risiko
+
+| Level | ID Temuan |
+|---|---|
+| Critical | VUL-004, VUL-012 |
+| High | VUL-001, VUL-009 |
+| Medium | VUL-002, VUL-003, VUL-005, VUL-006, VUL-007, VUL-010, VUL-011 |
+| Low | VUL-008 |
+
+## Catatan
+- VUL-012 memakai pendekatan worst-case sampai verifikasi manual endpoint instalasi selesai.
+- VUL-002 dan VUL-003 masih berstatus potensial dan perlu validasi exploit path sebelum eskalasi level.
